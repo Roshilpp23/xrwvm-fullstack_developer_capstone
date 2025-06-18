@@ -5,7 +5,7 @@ Django settings for djangoproj project.
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -14,11 +14,14 @@ SECRET_KEY = 'django-insecure-ccow$tz_=9%dxu4(0%^(z%nx32#s@(zt9$ih@)5l54yny)wm-0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Replace the example URL with your actual app URL when you deploy
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'xrwvm-fullstack-developer-capstone-roshilpp23.us-south.codeengine.appdomain.cloud']
-CSRF_TRUSTED_ORIGINS = ['https://xrwvm-fullstack-developer-capstone-roshilpp23.us-south.codeengine.appdomain.cloud']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://xrwvm-fullstack-developer-capstone-roshilpp23.us-south.codeengine.appdomain.cloud',
+    'https://roshilpp23-8000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai'
+]
 
+# REST Framework (if needed)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
 }
@@ -38,7 +41,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',  # optional but recommended
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -49,7 +52,11 @@ ROOT_URLCONF = 'djangoproj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend/static')],  # ✅ Set templates directory
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend/static'),
+            os.path.join(BASE_DIR, 'frontend/build'),
+            os.path.join(BASE_DIR, 'frontend/build/static'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,7 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'djangoproj.wsgi.application'
 
-# Database configuration
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -95,15 +102,16 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
 
-# ✅ Add frontend static files directory
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/static')
+    os.path.join(BASE_DIR, 'frontend/static'),
+    os.path.join(BASE_DIR, 'frontend/build'),
+    os.path.join(BASE_DIR, 'frontend/build/static'),
 ]
 
 # Default primary key field type
