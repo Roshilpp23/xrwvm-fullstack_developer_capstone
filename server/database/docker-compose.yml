@@ -1,23 +1,26 @@
 version: '3.9'
 
 services:
-  # Mongodb service
+  # MongoDB service
   mongo_db:
     container_name: db_container
     image: mongo:latest
     ports:
-      - 27017:27017
+      - "27017:27017"
     restart: always
     volumes:
       - mongo_data:/data/db
 
-  # Node api service
+  # Node.js API service
   api:
-    image: nodeapp
+    build: .                # <-- RECOMMENDED: use `build` to rebuild app when you change code
+    container_name: nodeapp # optional, to name the container
     ports:
-      - 3030:3030
+      - "3030:3030"
     depends_on: 
       - mongo_db
+    environment:
+      - MONGO_URL=mongodb://mongo_db:27017/dealershipdb  # VERY IMPORTANT
 
 volumes:
   mongo_data: {}
