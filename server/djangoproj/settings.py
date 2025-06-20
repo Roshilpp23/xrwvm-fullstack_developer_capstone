@@ -18,8 +18,10 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'xrwvm-fullstack-developer-capstone-r
 
 CSRF_TRUSTED_ORIGINS = [
     'https://xrwvm-fullstack-developer-capstone-roshilpp23.us-south.codeengine.appdomain.cloud',
-    'https://roshilpp23-8000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai'
+    'https://roshilpp23-8000.theianext-0-labs-prod-misc-tools-us-east-0.proxy.cognitiveclass.ai',
+    'https://roshilpp23-8000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai'  # ✅ Add this line
 ]
+
 
 # REST Framework (if needed)
 REST_FRAMEWORK = {

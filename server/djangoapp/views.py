@@ -6,9 +6,12 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 
+# ✅ Import Car Models and the initiate function
+from .models import CarMake, CarModel
+from .populate import initiate
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-
 
 # ✅ LOGIN VIEW
 @csrf_exempt
@@ -33,7 +36,6 @@ def login_user(request):
 
     return JsonResponse({"message": "Invalid request method"}, status=400)
 
-
 # ✅ LOGOUT VIEW
 @csrf_exempt
 def logout_request(request):
@@ -42,7 +44,6 @@ def logout_request(request):
         logger.info("User logged out successfully.")
         return JsonResponse({"userName": ""}, status=200)
     return JsonResponse({"message": "Invalid request method"}, status=400)
-
 
 # ✅ REGISTRATION VIEW
 @csrf_exempt
@@ -77,3 +78,21 @@ def registration(request):
             return JsonResponse({"message": "Registration failed"}, status=500)
 
     return JsonResponse({"message": "Invalid request method"}, status=400)
+
+# ✅ GET CARS VIEW
+@csrf_exempt
+def get_cars(request):
+    count = CarMake.objects.filter().count()
+    print("CarMake count:", count)  # ✅ Print for debugging
+    if count == 0:
+        initiate()  # ✅ Only runs if no CarMakes exist
+
+    car_models = CarModel.objects.select_related('car_make')
+    cars = []
+    for car_model in car_models:
+        cars.append({
+            "CarModel": car_model.name,
+            "CarMake": car_model.car_make.name
+        })
+
+    return JsonResponse({"CarModels": cars})
