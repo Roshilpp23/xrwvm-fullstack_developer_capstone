@@ -10,6 +10,9 @@ from django.contrib.auth.models import User
 from .models import CarMake, CarModel
 from .populate import initiate
 
+# ✅ Import backend proxy utilities
+from .restapis import get_request, analyze_review_sentiments, post_review
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -39,7 +42,7 @@ def login_user(request):
 # ✅ LOGOUT VIEW
 @csrf_exempt
 def logout_request(request):
-    if request.method == "GET":  # React frontend uses GET for logout
+    if request.method == "GET":
         logout(request)
         logger.info("User logged out successfully.")
         return JsonResponse({"userName": ""}, status=200)
@@ -61,7 +64,6 @@ def registration(request):
                 logger.warning(f"Registration attempt for existing user: {username}")
                 return JsonResponse({"error": "Already Registered"}, status=400)
 
-            # Create and log in the new user
             user = User.objects.create_user(
                 username=username,
                 password=password,
@@ -83,9 +85,9 @@ def registration(request):
 @csrf_exempt
 def get_cars(request):
     count = CarMake.objects.filter().count()
-    print("CarMake count:", count)  # ✅ Print for debugging
+    print("CarMake count:", count)
     if count == 0:
-        initiate()  # ✅ Only runs if no CarMakes exist
+        initiate()
 
     car_models = CarModel.objects.select_related('car_make')
     cars = []
@@ -96,3 +98,51 @@ def get_cars(request):
         })
 
     return JsonResponse({"CarModels": cars})
+
+# ✅ GET DEALERSHIPS (ALL or BY STATE)
+@csrf_exempt
+def get_dealerships(request, state="All"):
+    if state == "All":
+        endpoint = "/fetchDealers"
+    else:
+        endpoint = f"/fetchDealers/{state}"
+    dealerships = get_request(endpoint)
+    return JsonResponse({"status": 200, "dealers": dealerships})
+
+# ✅ GET A SINGLE DEALER BY ID
+@csrf_exempt
+def get_dealer_details(request, dealer_id):
+    if dealer_id:
+        endpoint = f"/fetchDealer/{dealer_id}"
+        dealer = get_request(endpoint)
+        return JsonResponse({"status": 200, "dealer": dealer})
+    return JsonResponse({"status": 400, "message": "Bad Request"})
+
+# ✅ GET REVIEWS FOR A DEALER WITH SENTIMENTS
+@csrf_exempt
+def get_dealer_reviews(request, dealer_id):
+    if dealer_id:
+        endpoint = f"/fetchReviews/dealer/{dealer_id}"
+        reviews = get_request(endpoint)
+        for review_detail in reviews:
+            sentiment = analyze_review_sentiments(review_detail.get('review', ''))
+            review_detail['sentiment'] = sentiment
+        return JsonResponse({"status": 200, "reviews": reviews})
+    return JsonResponse({"status": 400, "message": "Bad Request"})
+
+# ✅ ADD REVIEW (POST)
+@csrf_exempt
+def add_review(request):
+    if request.user.is_authenticated:
+        try:
+            data = json.loads(request.body)
+            response = post_review(data)
+            if response:
+                return JsonResponse({"status": 200, "message": "Review posted successfully"})
+            else:
+                return JsonResponse({"status": 500, "message": "Failed to post review"})
+        except Exception as e:
+            print("Error posting review:", e)
+            return JsonResponse({"status": 400, "message": "Bad Request"})
+    else:
+        return JsonResponse({"status": 403, "message": "Unauthorized"})
